@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Modern WhatsApp Clone - Real-time chat application with modern features">
+    <meta name="theme-color" content="#00bcd4">
+    <title>WhatsApp Clone - Chat</title>
+    <link rel="stylesheet" href="../assets/css/chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../assets/img/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="appContainer">
+        <!-- Chat Sidebar -->
+        <div id="chatSidebar" class="chat-sidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <div class="sidebar-profile" onclick="toggleSidebar('profileSidebar')" role="button" tabindex="0" aria-label="Open Profile">
+                    <img id="sidebarProfilePhoto" src="../assets/img/default.png" alt="Profile Photo" class="sidebar-profile-photo">
+                    <div class="sidebar-user-info">
+                        <div id="sidebarUserName" class="sidebar-user-name">Your Name</div>
+                        <div id="statusText" class="status-text">Available</div>
+                    </div>
+                </div>
+                <div class="sidebar-controls">
+                    <button class="sidebar-control-btn" id="darkModeToggle" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="sidebar-control-btn" id="statusToggle" title="Change Status" aria-label="Change Status">
+                        <i class="fas fa-circle-dot"></i>
+                    </button>
+                    <button class="sidebar-control-btn" id="newChatBtn" title="Start New Chat" aria-label="Start New Chat">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="sidebar-control-btn" id="mainMenuBtn" title="Open Menu" aria-label="Open Menu">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Container -->
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search or start new chat" class="search-input" aria-label="Search chats and contacts">
+                    <button class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat List -->
+            <div class="chat-list" id="chatList" role="listbox" aria-label="Chat list">
+                <!-- Chat items will be loaded here -->
+            </div>
+
+            <!-- No Chats Message -->
+            <div id="noChatsMessage" class="no-chats-message" style="display: none;">
+                <div class="no-chats-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>No chats yet</h3>
+                <p>Start a new conversation to begin messaging</p>
+                <button class="btn-primary" onclick="chatApp.showNewChatModal()">
+                    <i class="fas fa-edit"></i>
+                    Start New Chat
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chatArea" class="chat-area">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h1 class="welcome-title">Welcome to WhatsApp Clone</h1>
+                    <p class="welcome-subtitle">Select a chat to start messaging with your friends and family. Experience the familiar WhatsApp interface with modern features.</p>
+                    <div class="welcome-actions">
+                        <button class="btn-primary" onclick="chatApp.showNewChatModal()">
+                            <i class="fas fa-edit"></i>
+                            Start New Chat
+                        </button>
+                        <button class="btn-secondary" onclick="chatApp.showHelp()">
+                            <i class="fas fa-question-circle"></i>
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Chat -->
+            <div id="activeChat" class="active-chat" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-info">
+                        <img id="chatProfilePhoto" src="../assets/img/default.png" alt="Chat Profile" class="chat-profile-photo">
+                        <div class="chat-details">
+                            <div id="chatName" class="chat-name-header">Chat Name</div>
+                            <div id="chatStatus" class="chat-status">Online</div>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="chat-action-btn" onclick="chatApp.startVoiceCall()" title="Voice Call" aria-label="Start Voice Call">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                        <button class="chat-action-btn" onclick="chatApp.startVideoCall()" title="Video Call" aria-label="Start Video Call">
+                            <i class="fas fa-video"></i>
+                        </button>
+                        <button class="chat-action-btn" onclick="toggleSidebar('chatInfoSidebar')" title="Chat Info" aria-label="Chat Information">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                        <button class="chat-action-btn" onclick="toggleSidebar('chatInfoSidebar')" title="More Options" aria-label="More Options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Container -->
+                <div id="messagesContainer" class="messages-container">
+                    <div id="messagesWrapper" class="messages-wrapper">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    
+                    <!-- Typing Indicator -->
+                    <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="typing-text">typing...</span>
+                    </div>
+                </div>
+
+                <!-- Reply Preview -->
+                <div id="replyPreview" class="reply-preview" style="display: none;">
+                    <div class="reply-content">
+                        <div class="reply-info">
+                            <span class="reply-sender">Sender Name</span>
+                            <button class="reply-close" onclick="chatApp.hideReplyPreview()" aria-label="Remove reply">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="reply-message">Reply message content...</div>
+                    </div>
+                </div>
+
+                <!-- Message Input Area -->
+                <div class="message-input-area">
+                    <div class="message-input-container">
+                        <div class="input-actions left">
+                            <button class="input-action-btn" id="emojiButton" title="Add Emoji" aria-label="Add Emoji">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <button class="input-action-btn" id="attachButton" title="Attach File" aria-label="Attach File">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                        </div>
+                        <div class="input-wrapper">
+                            <textarea id="messageInput" class="message-input" placeholder="Type a message..." rows="1" aria-label="Message input"></textarea>
+                            <div class="input-actions right">
+                                <button class="input-action-btn" id="voiceButton" title="Voice Message" aria-label="Record Voice Message">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="send-button" id="sendButton" title="Send Message" aria-label="Send Message" disabled>
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Sidebar -->
+        <div id="profileSidebar" class="profile-sidebar" style="display: none;">
+            <div class="sidebar-header">
+                <h3>Profile</h3>
+                <button onclick="toggleSidebar('profileSidebar')" class="sidebar-close" aria-label="Close Profile">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-photo-section">
+                    <img id="profilePhoto" src="../assets/img/default.png" alt="Profile Photo" class="profile-photo">
+                    <button class="edit-photo-btn" onclick="editPhoto()" aria-label="Edit Profile Photo">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div class="profile-info">
+                    <div class="info-item">
+                        <label>Name</label>
+                        <span id="profileName">Your Name</span>
+                        <button onclick="editName()" class="edit-btn" aria-label="Edit Name">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone</label>
+                        <span id="profilePhone">+1234567890</span>
+                        <button onclick="editPhone()" class="edit-btn" aria-label="Edit Phone">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="info-item">
+                        <label>About</label>
+                        <span id="profileAbout">Hey there! I'm using WhatsApp Clone.</span>
+                        <button onclick="editAbout()" class="edit-btn" aria-label="Edit About">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Info Sidebar -->
+        <div id="chatInfoSidebar" class="chat-info-sidebar" style="display: none;">
+            <div class="sidebar-header">
+                <h3>Chat Info</h3>
+                <button onclick="toggleSidebar('chatInfoSidebar')" class="sidebar-close" aria-label="Close Chat Info">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-info-content">
+                <div class="chat-info-header">
+                    <img id="chatInfoPhoto" src="../assets/img/default.png" alt="Chat Profile" class="chat-info-photo">
+                    <div class="chat-info-details">
+                        <h4 id="chatInfoName">Chat Name</h4>
+                        <p id="chatInfoStatus">Online</p>
+                    </div>
+                </div>
+                <div class="chat-actions-list">
+                    <button class="chat-action-item" onclick="chatApp.startVoiceCall()">
+                        <i class="fas fa-phone"></i>
+                        <span>Voice Call</span>
+                    </button>
+                    <button class="chat-action-item" onclick="chatApp.startVideoCall()">
+                        <i class="fas fa-video"></i>
+                        <span>Video Call</span>
+                    </button>
+                    <button class="chat-action-item" onclick="chatApp.searchMessages()">
+                        <i class="fas fa-search"></i>
+                        <span>Search Messages</span>
+                    </button>
+                    <button class="chat-action-item" onclick="chatApp.clearChat()">
+                        <i class="fas fa-trash"></i>
+                        <span>Clear Chat</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emoji Picker -->
+        <div id="emojiPicker" class="emoji-picker" style="display: none;">
+            <div class="emoji-header">
+                <h4>Emojis</h4>
+                <button onclick="chatApp.toggleEmojiPicker()" class="emoji-close" aria-label="Close Emoji Picker">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="emoji-categories">
+                <button class="emoji-category active" data-category="recent">😊</button>
+                <button class="emoji-category" data-category="smileys">😀</button>
+                <button class="emoji-category" data-category="animals">🐶</button>
+                <button class="emoji-category" data-category="food">🍕</button>
+                <button class="emoji-category" data-category="activities">⚽</button>
+                <button class="emoji-category" data-category="travel">✈️</button>
+                <button class="emoji-category" data-category="objects">💡</button>
+                <button class="emoji-category" data-category="symbols">❤️</button>
+            </div>
+            <div class="emoji-grid" id="emojiGrid">
+                <!-- Emojis will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Attachment Menu -->
+        <div id="attachmentMenu" class="attachment-menu" style="display: none;">
+            <div class="attachment-header">
+                <h4>Attach</h4>
+                <button onclick="chatApp.toggleAttachmentMenu()" class="attachment-close" aria-label="Close Attachment Menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="attachment-options">
+                <div class="attachment-option" onclick="document.getElementById('imageInput').click()" role="button" tabindex="0">
+                    <div class="attachment-icon-wrapper">
+                        <i class="fas fa-image attachment-icon"></i>
+                    </div>
+                    <span class="attachment-label">Photo</span>
+                </div>
+                <div class="attachment-option" onclick="document.getElementById('videoInput').click()" role="button" tabindex="0">
+                    <div class="attachment-icon-wrapper">
+                        <i class="fas fa-video attachment-icon"></i>
+                    </div>
+                    <span class="attachment-label">Video</span>
+                </div>
+                <div class="attachment-option" onclick="document.getElementById('audioInput').click()" role="button" tabindex="0">
+                    <div class="attachment-icon-wrapper">
+                        <i class="fas fa-music attachment-icon"></i>
+                    </div>
+                    <span class="attachment-label">Audio</span>
+                </div>
+                <div class="attachment-option" onclick="document.getElementById('documentInput').click()" role="button" tabindex="0">
+                    <div class="attachment-icon-wrapper">
+                        <i class="fas fa-file attachment-icon"></i>
+                    </div>
+                    <span class="attachment-label">Document</span>
+                </div>
+                <div class="attachment-option" onclick="document.getElementById('fileInput').click()" role="button" tabindex="0">
+                    <div class="attachment-icon-wrapper">
+                        <i class="fas fa-folder attachment-icon"></i>
+                    </div>
+                    <span class="attachment-label">File</span>
+                </div>
+                <div class="attachment-option" onclick="chatApp.startVoiceRecording()" role="button" tabindex="0">
+                    <div class="attachment-icon-wrapper">
+                        <i class="fas fa-microphone attachment-icon"></i>
+                    </div>
+                    <span class="attachment-label">Voice</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Menu -->
+        <div id="statusMenu" class="status-menu" style="display: none;">
+            <div class="status-header">
+                <h4>Set Status</h4>
+                <button onclick="chatApp.toggleStatusMenu()" class="status-close" aria-label="Close Status Menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="status-options">
+                <div class="status-option" onclick="chatApp.setUserStatus('Available')" role="button" tabindex="0">
+                    <i class="fas fa-circle status-dot available"></i>
+                    <span>Available</span>
+                </div>
+                <div class="status-option" onclick="chatApp.setUserStatus('Busy')" role="button" tabindex="0">
+                    <i class="fas fa-circle status-dot busy"></i>
+                    <span>Busy</span>
+                </div>
+                <div class="status-option" onclick="chatApp.setUserStatus('Away')" role="button" tabindex="0">
+                    <i class="fas fa-circle status-dot away"></i>
+                    <span>Away</span>
+                </div>
+                <div class="status-option" onclick="chatApp.setUserStatus('Offline')" role="button" tabindex="0">
+                    <i class="fas fa-circle status-dot offline"></i>
+                    <span>Offline</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="main-menu" style="display: none;">
+            <div class="menu-header">
+                <h4>Menu</h4>
+                <button onclick="chatApp.toggleMainMenu()" class="menu-close" aria-label="Close Menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="menu-options">
+                <div class="menu-option" onclick="viewFullProfile()" role="button" tabindex="0">
+                    <i class="fas fa-user menu-icon"></i>
+                    <span>Profile</span>
+                </div>
+                <div class="menu-option" onclick="chatApp.showSettings()" role="button" tabindex="0">
+                    <i class="fas fa-cog menu-icon"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="menu-option" onclick="chatApp.showHelp()" role="button" tabindex="0">
+                    <i class="fas fa-question-circle menu-icon"></i>
+                    <span>Help</span>
+                </div>
+                <div class="menu-option" onclick="logout()" role="button" tabindex="0">
+                    <i class="fas fa-sign-out-alt menu-icon"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Chat Modal -->
+        <div id="newChatModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">New Chat</h3>
+                    <button onclick="closeModal('newChatModal')" class="modal-close" aria-label="Close Modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="search-section">
+                        <input type="text" id="contactSearch" placeholder="Search contacts..." class="contact-search-input">
+                    </div>
+                    <div id="contactList" class="contact-list">
+                        <!-- Contacts will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Settings</h3>
+                    <button onclick="closeModal('settingsModal')" class="modal-close" aria-label="Close Modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <h5>Notifications</h5>
+                        <div class="setting-item">
+                            <span>Message notifications</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Sound notifications</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Vibration</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h5>Privacy</h5>
+                        <div class="setting-item">
+                            <span>Last seen</span>
+                            <select>
+                                <option>Everyone</option>
+                                <option>My contacts</option>
+                                <option>Nobody</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <span>Profile photo</span>
+                            <select>
+                                <option>Everyone</option>
+                                <option>My contacts</option>
+                                <option>Nobody</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <span>Read receipts</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h5>Chat</h5>
+                        <div class="setting-item">
+                            <span>Enter to send</span>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Media auto-download</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Help & Support</h3>
+                    <button onclick="closeModal('helpModal')" class="modal-close" aria-label="Close Modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-section">
+                        <h5>Getting Started</h5>
+                        <p>Welcome to WhatsApp Clone! Here's how to get started:</p>
+                        <ul>
+                            <li>Select a chat from the left sidebar to start messaging</li>
+                            <li>Use the search bar to find specific chats or contacts</li>
+                            <li>Click the edit button to start a new chat</li>
+                            <li>Use the attachment button to send files and media</li>
+                            <li>Long press messages for additional options</li>
+                        </ul>
+                    </div>
+                    <div class="help-section">
+                        <h5>Features</h5>
+                        <ul>
+                            <li>Real-time messaging with typing indicators</li>
+                            <li>File and media sharing</li>
+                            <li>Voice messages and calls</li>
+                            <li>Dark mode support</li>
+                            <li>Message reactions and replies</li>
+                            <li>Search functionality</li>
+                            <li>Profile customization</li>
+                        </ul>
+                    </div>
+                    <div class="help-section">
+                        <h5>Keyboard Shortcuts</h5>
+                        <ul>
+                            <li><kbd>Ctrl/Cmd + Enter</kbd> - Send message</li>
+                            <li><kbd>Ctrl/Cmd + K</kbd> - New chat</li>
+                            <li><kbd>Ctrl/Cmd + F</kbd> - Search</li>
+                            <li><kbd>Ctrl/Cmd + M</kbd> - Toggle dark mode</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Call Modal -->
+        <div id="voiceCallModal" class="modal call-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Voice Call</h3>
+                    <button onclick="chatApp.endCall()" class="modal-close" aria-label="End Call">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="call-info">
+                        <div class="call-avatar">
+                            <img id="callContactPhoto" src="../assets/img/default.png" alt="Contact Photo">
+                        </div>
+                        <h4 id="callContactName">Contact Name</h4>
+                        <p class="call-status">Calling...</p>
+                    </div>
+                    <div class="call-actions">
+                        <button class="call-btn mute" onclick="chatApp.toggleMute()" title="Mute" aria-label="Toggle Mute">
+                            <i class="fas fa-microphone-slash"></i>
+                        </button>
+                        <button class="call-btn end" onclick="chatApp.endCall()" title="End Call" aria-label="End Call">
+                            <i class="fas fa-phone-slash"></i>
+                        </button>
+                        <button class="call-btn speaker" onclick="chatApp.toggleSpeaker()" title="Speaker" aria-label="Toggle Speaker">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Call Modal -->
+        <div id="videoCallModal" class="modal call-modal video-call-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Video Call</h3>
+                    <button onclick="chatApp.endCall()" class="modal-close" aria-label="End Call">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="video-container">
+                        <video id="remoteVideo" autoplay muted class="remote-video">
+                            <source src="" type="video/mp4">
+                        </video>
+                        <video id="localVideo" autoplay muted class="local-video">
+                            <source src="" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="call-actions">
+                        <button class="call-btn mute" onclick="chatApp.toggleMute()" title="Mute" aria-label="Toggle Mute">
+                            <i class="fas fa-microphone-slash"></i>
+                        </button>
+                        <button class="call-btn end" onclick="chatApp.endCall()" title="End Call" aria-label="End Call">
+                            <i class="fas fa-phone-slash"></i>
+                        </button>
+                        <button class="call-btn camera" onclick="chatApp.toggleCamera()" title="Camera" aria-label="Toggle Camera">
+                            <i class="fas fa-video-slash"></i>
+                        </button>
+                        <button class="call-btn switch-camera" onclick="chatApp.switchCamera()" title="Switch Camera" aria-label="Switch Camera">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden File Inputs -->
+        <input type="file" id="fileInput" accept="*/*" style="display: none;">
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        <input type="file" id="videoInput" accept="video/*" style="display: none;">
+        <input type="file" id="audioInput" accept="audio/*" style="display: none;">
+        <input type="file" id="documentInput" accept=".pdf,.doc,.docx,.txt,.rtf" style="display: none;">
+
+        <!-- Audio Elements -->
+        <audio id="ringtone" src="../assets/sounds/ringtone.mp3" preload="auto"></audio>
+        <audio id="audioPlayer" controls style="display: none;"></audio>
+        <audio id="notificationSound" src="../assets/sounds/notification.mp3" preload="auto"></audio>
+        <audio id="messageSound" src="../assets/sounds/message.mp3" preload="auto"></audio>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.IO Script -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="../assets/js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | User Portal</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Welcome to the User Portal</h2>
+        <div id="navButtons" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+            <a id="chatRoomBtn" href="./chat/chat.html" style="display:none;"><button type="button" style="background: #25d366; color: white; font-weight: bold;">💬 Join Chat Room</button></a>
+            <a id="registerBtn" href="./auth/register.html"><button type="button">Register</button></a>
+            <a id="loginBtn" href="./auth/login.html"><button type="button">Login</button></a>
+            <a id="viewProfileBtn" href="./profile/view.html" style="display:none;"><button type="button">View Profile</button></a>
+            <a id="editProfileBtn" href="./profile/edit.html" style="display:none;"><button type="button">Edit Profile</button></a>
+            <a id="logoutBtn" href="#" style="display:none;" onclick="logout()"><button type="button" style="background: #ff6b6b; color: white;">Logout</button></a>
+        </div>
+    </div>
+    <script>
+    // Show appropriate buttons based on login status
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        const userInfo = localStorage.getItem('userInfo');
+        
+        if (token && userInfo) {
+            // User is logged in - show logged in options
+            document.getElementById('chatRoomBtn').style.display = '';
+            document.getElementById('viewProfileBtn').style.display = '';
+            document.getElementById('editProfileBtn').style.display = '';
+            document.getElementById('logoutBtn').style.display = '';
+            
+            // Hide login/register buttons
+            document.getElementById('registerBtn').style.display = 'none';
+            document.getElementById('loginBtn').style.display = 'none';
+            
+            // Update welcome message
+            const user = JSON.parse(userInfo);
+            const welcomeMsg = document.querySelector('h2');
+            welcomeMsg.textContent = `Welcome back, ${user.name || user.email}!`;
+        } else {
+            // User is not logged in - show login/register options
+            document.getElementById('chatRoomBtn').style.display = 'none';
+            document.getElementById('viewProfileBtn').style.display = 'none';
+            document.getElementById('editProfileBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            
+            // Show login/register buttons
+            document.getElementById('registerBtn').style.display = '';
+            document.getElementById('loginBtn').style.display = '';
+        }
+    });
+    
+    // Logout function
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            location.reload(); // Refresh page to update UI
+        }
+    }
+    </script>
+</body>
+</html>

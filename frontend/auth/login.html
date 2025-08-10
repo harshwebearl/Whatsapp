@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm" action="/api/auth/login" method="POST">
+            <label for="identifier">Email or Mobile</label>
+            <input type="text" id="identifier" name="identifier" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required minlength="6">
+
+            <button type="submit">Login</button>
+        </form>
+        <div style="text-align:center; margin-top:1rem;">
+            <a href="/auth/register.html">Don't have an account? Register</a>
+        </div>
+    </div>
+    <script src="../assets/js/auth.js"></script>
+</body>
+</html>
